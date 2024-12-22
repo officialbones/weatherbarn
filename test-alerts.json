@@ -1,0 +1,42 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "id": "alert1",
+        "type": "Feature",
+        "properties": {
+          "headline": "Severe Thunderstorm Warning",
+          "description": "Severe thunderstorms capable of producing damaging winds and large hail.",
+          "severity": "Warning"
+        }
+      },
+      {
+        "id": "alert2",
+        "type": "Feature",
+        "properties": {
+          "headline": "Tornado Watch",
+          "description": "Conditions are favorable for the development of tornadoes.",
+          "severity": "Watch"
+        }
+      },
+      {
+        "id": "alert2",
+        "type": "Feature",
+        "properties": {
+          "headline": "Special Weather Advisory",
+          "description": "Don't forget to eat your beans",
+          "severity": "Advisory"
+        }
+      },
+      {
+        "id": "alert2",
+        "type": "Feature",
+        "properties": {
+          "headline": "TEST Advisory",
+          "description": "TEST",
+          "severity": "Advisory"
+        }
+      }
+    ]
+  }
+  
