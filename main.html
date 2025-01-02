@@ -12,10 +12,6 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
   />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-  />
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -42,7 +38,7 @@
       font-size: 3em;
       font-weight: bold;
       display: flex;
-      flex-direction: column; /* allow stacking of title and datetime */
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       border-radius: 15px 15px 0 0;
@@ -93,9 +89,6 @@
       justify-content: space-between;
       margin: 10px 0;
     }
-    .card-body p i {
-      margin-right: 10px; /* Adjust spacing as needed */
-    }
     .alerts {
       background: #b71c1c;
       color: #ffebee;
@@ -103,12 +96,6 @@
       font-size: 2em;
       text-align: center;
       border-radius: 8px;
-    }
-    #map {
-      height: 100%;
-      width: 100%;
-      border-radius: 10px;
-      margin: 0;
     }
   </style>
 </head>
@@ -134,313 +121,237 @@
     <script>
       // Conversion Functions
       function celsiusToFahrenheit(c) {
-          return ((c * 9/5) + 32).toFixed(1);
+        return ((c * 9 / 5) + 32).toFixed(1);
       }
 
       function msToMPH(ms) {
-          return (ms * 2.23694).toFixed(1);
+        return (ms * 2.23694).toFixed(1);
       }
 
       function hPaToInHg(hPa) {
-          return (hPa * 0.02953).toFixed(2);
+        return (hPa * 0.02953).toFixed(2);
       }
 
       function mmToInches(mm) {
-          return (mm * 0.03937).toFixed(2);
+        return (mm * 0.03937).toFixed(2);
       }
 
       // Fetch Tempest Weather Data
       async function fetchWeatherData() {
-          const response = await fetch('https://swd.weatherflow.com/swd/rest/observations/station/149262?token=<YOUR_TEMPEST_API>');
+        try {
+          const response = await fetch('https://swd.weatherflow.com/swd/rest/observations/station/149262?token=7547d275-d6b9-405e-886a-b0e0ef618aa6');
+          if (!response.ok) throw new Error("Failed to fetch Tempest data");
+
           const data = await response.json();
           const obs = data.obs[0];
 
           document.getElementById('tempest-data').innerHTML = `
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <p style="font-size: 1.5em; margin: 0;">
-                      <i class="fas fa-temperature-high" style="color: #ff5722;"></i> Temperature
-                  </p>
-                  <span style="font-size: 1.8em; font-weight: bold; color: #ff5722;">
-                      ${celsiusToFahrenheit(obs.air_temperature)}°F
-                  </span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <p style="font-size: 1.5em; margin: 0;">
-                      <i class="fas fa-tint" style="color: #03a9f4;"></i> Humidity
-                  </p>
-                  <span style="font-size: 1.8em; font-weight: bold; color: #03a9f4;">
-                      ${obs.relative_humidity}%
-                  </span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <p style="font-size: 1.5em; margin: 0;">
-                      <i class="fas fa-wind" style="color: #00bcd4;"></i> Wind Speed
-                  </p>
-                  <span style="font-size: 1.8em; font-weight: bold; color: #00bcd4;">
-                      ${msToMPH(obs.wind_avg)} MPH
-                  </span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <p style="font-size: 1.5em; margin: 0;">
-                      <i class="fas fa-tachometer-alt" style="color: #8bc34a;"></i> Pressure
-                  </p>
-                  <span style="font-size: 1.8em; font-weight: bold; color: #8bc34a;">
-                      ${hPaToInHg(obs.station_pressure)} inHg
-                  </span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <p style="font-size: 1.5em; margin: 0;">
-                      <i class="fas fa-cloud-showers-heavy" style="color: #607d8b;"></i> Rain
-                  </p>
-                  <span style="font-size: 1.8em; font-weight: bold; color: #607d8b;">
-                      ${mmToInches(obs.precip)} in
-                  </span>
-              </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <p style="font-size: 1.5em; margin: 0;">
+                <i class="fas fa-temperature-high" style="color: #ff5722;"></i> Temperature
+              </p>
+              <span style="font-size: 1.8em; font-weight: bold; color: #ff5722;">
+                ${celsiusToFahrenheit(obs.air_temperature)}°F
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <p style="font-size: 1.5em; margin: 0;">
+                <i class="fas fa-tint" style="color: #03a9f4;"></i> Humidity
+              </p>
+              <span style="font-size: 1.8em; font-weight: bold; color: #03a9f4;">
+                ${obs.relative_humidity}%
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <p style="font-size: 1.5em; margin: 0;">
+                <i class="fas fa-wind" style="color: #00bcd4;"></i> Wind Speed
+              </p>
+              <span style="font-size: 1.8em; font-weight: bold; color: #00bcd4;">
+                ${msToMPH(obs.wind_avg)} MPH
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <p style="font-size: 1.5em; margin: 0;">
+                <i class="fas fa-tachometer-alt" style="color: #8bc34a;"></i> Pressure
+              </p>
+              <span style="font-size: 1.8em; font-weight: bold; color: #8bc34a;">
+                ${hPaToInHg(obs.station_pressure)} inHg
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <p style="font-size: 1.5em; margin: 0;">
+                <i class="fas fa-cloud-showers-heavy" style="color: #607d8b;"></i> Rain
+              </p>
+              <span style="font-size: 1.8em; font-weight: bold; color: #607d8b;">
+                ${mmToInches(obs.precip)} in
+              </span>
+            </div>
           `;
 
           // Flash the card yellow if wind speed exceeds 30 MPH
           const tempestCard = document.getElementById('tempest-card');
           const windSpeed = obs.wind_avg;
           if (windSpeed > 13.4) { // 13.4 m/s = ~30 MPH
-              tempestCard.classList.add('flash-yellow');
+            tempestCard.classList.add('flash-yellow');
           } else {
-              tempestCard.classList.remove('flash-yellow');
+            tempestCard.classList.remove('flash-yellow');
           }
+        } catch (error) {
+          console.error("Error fetching Tempest data:", error);
+          document.getElementById('tempest-data').innerHTML = "<em>Failed to load data.</em>";
+        }
       }
 
       // Update data regularly
-      setInterval(fetchWeatherData, 5000);
+      setInterval(fetchWeatherData, 30000);
       fetchWeatherData();
     </script>
 
-    <!-- Windy Radar Card -->
-    <div class="card">
-      <div class="card-header">📻 <strong>Windy Radar</strong></div>
-      <div class="card-body" id="windy-map-container" style="position: relative; height: 100%;">
-        <iframe
-          src="https://embed.windy.com/embed2.html?lat=40.4357&lon=-85.01&zoom=5&level=surface&overlay=wind&menu=&message=&marker=&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=40.4357&detailLon=-85.01&metricWind=default&metricTemp=default&radarRange=-1"
-          frameborder="0"
-          style="width: 100%; height: 100%; border-radius: 10px;"
-        ></iframe>
+    <!-- NWS Alerts Card -->
+    <div class="card" id="nws-alert-card" style="position: relative;">
+      <div
+        class="card-header"
+        style="display: flex; justify-content: space-between; align-items: center;"
+      >
+        <span><i class="fas fa-exclamation-triangle"></i> National Weather Service Alerts</span>
+        <span id="alert-counter" style="font-size: 1em; color: #ff5722;">0 Alerts</span>
+      </div>
+      <div class="card-body" id="nws-alerts" style="text-align: center; font-size: 1.5em;">
+        NO ALERTS
       </div>
     </div>
 
-    <!-- 
-      REPLACED the Storm Chaser Tracker with a Nadocast "latest" fetch 
-    -->
-    <div class="card">
-      <div class="card-header">🌪️ <strong>Latest Nadocast Image</strong></div>
-      <div class="card-body" style="text-align:center;">
-        <p id="nadocastStatus" style="margin-bottom:10px; font-size:1.1em;">
-          Fetching latest file from nadocast...
-        </p>
-        <img
-          id="nadocastImage"
-          src=""
-          alt="Loading Nadocast latest image..."
-          style="max-width: 100%; border-radius: 10px;"
-        />
-      </div>
-    </div>
-  </div> <!-- end .main -->
+    <script>
+      let currentAlertIndex = 0;
+      let alerts = [];
 
-  <!-- NWS Alerts Card -->
-  <div class="card" id="nws-alert-card" style="position: relative;">
-    <div
-      class="card-header"
-      style="display: flex; justify-content: space-between; align-items: center;"
-    >
-      <span><i class="fas fa-exclamation-triangle"></i> National Weather Service Alerts</span>
-      <span id="alert-counter" style="font-size: 1em; color: #ff5722;">0 Alerts</span>
-    </div>
-    <div class="card-body" id="nws-alerts" style="text-align: center; font-size: 1.5em;">
-      NO ALERTS
-    </div>
+      async function fetchNWSAlerts() {
+        const alertBody = document.getElementById('nws-alerts');
+        const alertCounter = document.getElementById('alert-counter');
+        const feedUrls = [
+          'https://api.weather.gov/alerts/active.atom?zone=INC135',
+          'https://api.weather.gov/alerts/active.atom?zone=INC075'
+        ];
+
+        try {
+          console.log('Fetching fresh alerts...');
+          alertBody.innerHTML = "<em>Fetching fresh alerts...</em>";
+
+          // Fetch XML data from all feeds
+          const responses = await Promise.all(feedUrls.map(url => fetch(url)));
+          const texts = await Promise.all(responses.map(res => {
+            if (!res.ok) throw new Error(`Failed to fetch alerts from ${res.url}`);
+            return res.text();
+          }));
+
+          // Parse and merge alerts from all feeds
+          let allEntries = [];
+          const parser = new DOMParser();
+          texts.forEach(textData => {
+            const xmlData = parser.parseFromString(textData, "application/xml");
+            if (xmlData.getElementsByTagName('parsererror').length) {
+              throw new Error("Invalid XML received");
+            }
+            const entries = Array.from(xmlData.getElementsByTagName('entry'));
+            allEntries = allEntries.concat(entries);
+          });
+
+          processAlerts(allEntries);
+        } catch (error) {
+          console.error('Error fetching alerts:', error);
+          alertBody.innerHTML = "<em>Failed to fetch alerts. Please try again later.</em>";
+          alertCounter.innerHTML = "0 Alerts";
+        }
+      }
+
+      function processAlerts(entries) {
+        const alertBody = document.getElementById('nws-alerts');
+        const alertCounter = document.getElementById('alert-counter');
+
+        alerts = []; // Clear previous alerts
+
+        // Extract title & summary from each <entry>
+        const uniqueAlerts = new Map();
+        entries.forEach(entry => {
+          const id = entry.getElementsByTagName('id')[0]?.textContent || "No ID";
+          const title = entry.getElementsByTagName('title')[0]?.textContent || "No Title";
+          const summary = entry.getElementsByTagName('summary')[0]?.textContent || "No Description";
+
+          if (!uniqueAlerts.has(id)) {
+            uniqueAlerts.set(id, { title, summary });
+          }
+        });
+        alerts = Array.from(uniqueAlerts.values());
+
+        alertCounter.innerHTML = `${alerts.length} Alert${alerts.length !== 1 ? 's' : ''}`;
+
+        if (alerts.length > 0) {
+          currentAlertIndex = 0; // Reset index to avoid out-of-bounds access
+          cycleAlerts();
+        } else {
+          alertBody.innerHTML = "NO ALERTS";
+        }
+      }
+
+      function cycleAlerts() {
+        const alertBody = document.getElementById('nws-alerts');
+        const intervalId = setInterval(() => {
+          if (alerts.length === 0) {
+            clearInterval(intervalId);
+            return;
+          }
+          const alert = alerts[currentAlertIndex];
+          alertBody.innerHTML = `
+            <div>
+              <strong>${alert.title}</strong>
+              <p style="font-size: 0.8em; margin-top: 10px;">${alert.summary}</p>
+            </div>
+          `;
+          currentAlertIndex = (currentAlertIndex + 1) % alerts.length;
+        }, 5000); // Switch every 5s
+      }
+
+      fetchNWSAlerts();
+      setInterval(fetchNWSAlerts, 30000); // Re-fetch every 30s
+    </script>
   </div>
 
-</div> <!-- end .dashboard -->
+  <script>
+    // Function to update local and UTC times
+    function updateDateTime() {
+      const now = new Date();
 
-<!-- Leaflet.js Library (used if you want to bring back a map, not required for Nadocast fetch) -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+      // Local time
+      const localFormatted = now.toLocaleString(undefined, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
 
-<script>
-  // -----------------------------
-  //  Nadocast Directory Parsing
-  // -----------------------------
-  async function fetchLatestNadocastFile() {
-    const statusEl = document.getElementById('nadocastStatus');
-    const nadocastImg = document.getElementById('nadocastImage');
+      // UTC time
+      const utcFormatted = now.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'UTC',
+        timeZoneName: 'short',
+      });
 
-    try {
-      statusEl.textContent = "Fetching Nadocast directory...";
-
-      // 1) Fetch the directory listing (HTML)
-      const response = await fetch('http://data.nadocast.com/');
-      if (!response.ok) {
-        throw new Error("Failed to fetch Nadocast directory");
-      }
-      const textData = await response.text();
-
-      // 2) Extract all .png or .jpg filenames using a simple regex
-      //    This regex looks for: href="SOMETHING.png" or SOMETHING.jpg"
-      const matches = textData.match(/href="([^"]+\.(png|jpg|jpeg))"/gi) || [];
-      if (matches.length === 0) {
-        throw new Error("No image files found in the directory listing");
-      }
-
-      // 3) Extract the actual filenames from each match
-      //    Example match: href="2024-12-20_16-00.png"
-      const files = matches.map(m => {
-        const fileMatch = m.match(/href="([^"]+\.(png|jpg|jpeg))"/i);
-        return fileMatch ? fileMatch[1] : null;
-      }).filter(Boolean); // remove null if any
-
-      // 4) Sort the filenames so that the newest is last (assuming date-based naming)
-      files.sort();
-      const newestFile = files[files.length - 1];
-      console.log("All Nadocast files found:", files);
-      console.log("Newest file:", newestFile);
-
-      // 5) Build the full URL
-      const newestUrl = `http://data.nadocast.com/${newestFile}`;
-
-      // 6) Update the <img> with this URL
-      nadocastImg.src = newestUrl;
-      statusEl.textContent = "Latest file: " + newestFile;
-    } catch (err) {
-      console.error("Nadocast fetch error:", err);
-      statusEl.textContent = "Failed to fetch Nadocast image: " + err.message;
-      nadocastImg.src = ""; // Clear image
-    }
-  }
-
-  // Call it once page loads
-  document.addEventListener("DOMContentLoaded", fetchLatestNadocastFile);
-
-  // Optionally, refetch every so often (e.g., every 2 minutes)
-  // setInterval(fetchLatestNadocastFile, 120000);
-</script>
-
-<script>
-  // --------------------------------
-  //   NWS Alerts fetch (unchanged)
-  // --------------------------------
-  let currentAlertIndex = 0;
-  let alerts = [];
-
-  async function fetchNWSAlerts() {
-    const alertBody = document.getElementById('nws-alerts');
-    const alertCounter = document.getElementById('alert-counter');
-
-    try {
-      console.log('Fetching fresh alerts...');
-      alertBody.innerHTML = "<em>Fetching fresh alerts...</em>";
-
-      // Fetch XML data
-      const response = await fetch('https://api.weather.gov/alerts/active.atom?area=IN');
-      if (!response.ok) throw new Error("Failed to fetch NWS alerts");
-
-      const textData = await response.text();
-      console.log('Raw XML Data:', textData);
-
-      // Parse XML
-      const parser = new DOMParser();
-      const xmlData = parser.parseFromString(textData, "application/xml");
-      const entries = xmlData.getElementsByTagName('entry'); // All <entry> elements
-      console.log('Entries:', entries);
-
-      processAlerts(entries);
-    } catch (error) {
-      console.error('Error fetching alerts:', error);
-      alertBody.innerHTML = "<em>Failed to fetch alerts. Please try again later.</em>";
-      alertCounter.innerHTML = "0 Alerts";
-    }
-  }
-
-  function processAlerts(entries) {
-    const alertBody = document.getElementById('nws-alerts');
-    const alertCounter = document.getElementById('alert-counter');
-
-    alerts = []; // Clear previous alerts
-
-    // Extract title & summary from each <entry>
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i];
-      const title = entry.getElementsByTagName('title')[0]?.textContent || "No Title";
-      const summary = entry.getElementsByTagName('summary')[0]?.textContent || "No Description";
-      alerts.push({ title, summary });
+      // Update the DOM elements
+      document.getElementById('localTime').textContent = `Local: ${localFormatted}`;
+      document.getElementById('utcTime').textContent = `UTC: ${utcFormatted}`;
     }
 
-    console.log('Parsed Alerts:', alerts);
-
-    alertCounter.innerHTML = `${alerts.length} Alerts`;
-
-    if (alerts.length > 0) {
-      currentAlertIndex = 0;
-      cycleAlerts();
-    } else {
-      alertBody.innerHTML = "NO ALERTS";
-    }
-  }
-
-  function cycleAlerts() {
-    const alertBody = document.getElementById('nws-alerts');
-    setInterval(() => {
-      const alert = alerts[currentAlertIndex];
-      alertBody.innerHTML = `
-        <div>
-          <strong>${alert.title}</strong>
-          <p style="font-size: 0.8em; margin-top: 10px;">${alert.summary}</p>
-        </div>
-      `;
-      currentAlertIndex = (currentAlertIndex + 1) % alerts.length;
-    }, 10000); // Switch every 10s
-  }
-
-  fetchNWSAlerts();
-  setInterval(fetchNWSAlerts, 30000); // Re-fetch every 30s
-</script>
-
-<script>
-  // Function to update local, UTC, and Zulu times
-  function updateDateTime() {
-    const now = new Date();
-
-    // Local time
-    const localOptions = {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    };
-    const localFormatted = now.toLocaleString(undefined, localOptions);
-
-    // UTC time
-    const utcOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      timeZone: 'UTC',
-      timeZoneName: 'short',
-    };
-    const utcFormatted = now.toLocaleString('en-US', utcOptions);
-
-
-    // Update the DOM elements
-    document.getElementById('localTime').textContent = `Local: ${localFormatted}`;
-    document.getElementById('utcTime').textContent = `UTC: ${utcFormatted}`;
-  }
-
-  // Call updateDateTime on page load and every second
-  updateDateTime();
-  setInterval(updateDateTime, 1000);
-</script>
-
+    // Call updateDateTime on page load and every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+  </script>
 </body>
 </html>
